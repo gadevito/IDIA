@@ -1,102 +1,58 @@
-from langchain.prompts.prompt import PromptTemplate
+DIRECT_KNOWLEDGE_EXTRACTION_PROMPT ="""Given the following context, answer the question:
+        context: {context}
+        question: {question}
+        """
+
+METADATA_EXTRACTOR_PROMPT = """Extract from the curriculum surname, name, date of birth, quality of resume writing style, list of working experiences. Report the information in a well-formatted JSON, as in the example: 
+        {{"name":"name", "surname": "surname", "dateOfBirth":"date of birth", "quality": "the rank ranges from 0=poor to 10=excellent", "experiences": [{{"years": "number of years of working experience with the company", "start": "first year with the company", "end": "last year with the company", "company": "company"}}]}}
+        
+        Remember that the current year is 2023 and a University is not a company. Remember to always assign a quality rate to the curriculum. Provide only the JSON, nothin else.
+        """
+
+KNOWLEDGE_EXTRACTION_PROMPT ="""Use the following portion of a long curriculum vitae to see if any of the text is relevant or partially relevant to answer the question or are relevant to at least one candidate mentioned in the question, and summarize it. 
+If it is not so, return "None". Report the following metadata in you answer: surname, name, date of Birth, years of experience, and the quality of the curriculum. 
+
+{context}
+Question: {question}
+Relevant text, if any, in Italian:"""
+
+SUMMARIZE_PROMPT ="""Given the following extracted parts of a long document and a question, create a final answer. 
+If you don't know the answer, just say that you don't know. Don't try to make up an answer.
+
+QUESTION: Which state/country's law governs the interpretation of the contract?
+=========
+Content: This Agreement is governed by English law and the parties submit to the exclusive jurisdiction of the English courts in  relation to any dispute (contractual or non-contractual) concerning this Agreement save that either party may apply to any court for an  injunction or other relief to protect its Intellectual Property Rights.
+
+Content: No Waiver. Failure or delay in exercising any right or remedy under this Agreement shall not constitute a waiver of such (or any other)  right or remedy.\n\n11.7 Severability. The invalidity, illegality or unenforceability of any term (or part of a term) of this Agreement shall not affect the continuation  in force of the remainder of the term (if any) and this Agreement.\n\n11.8 No Agency. Except as expressly stated otherwise, nothing in this Agreement shall create an agency, partnership or joint venture of any  kind between the parties.\n\n11.9 No Third-Party Beneficiaries.
+
+Content: (b) if Google believes, in good faith, that the Distributor has violated or caused Google to violate any Anti-Bribery Laws (as  defined in Clause 8.5) or that such a violation is reasonably likely to occur,
+=========
+FINAL ANSWER: This Agreement is governed by English law.
+
+QUESTION: What did the president say about Michael Jackson?
+=========
+Content: Madam Speaker, Madam Vice President, our First Lady and Second Gentleman. Members of Congress and the Cabinet. Justices of the Supreme Court. My fellow Americans.  \n\nLast year COVID-19 kept us apart. This year we are finally together again. \n\nTonight, we meet as Democrats Republicans and Independents. But most importantly as Americans. \n\nWith a duty to one another to the American people to the Constitution. \n\nAnd with an unwavering resolve that freedom will always triumph over tyranny. \n\nSix days ago, Russia’s Vladimir Putin sought to shake the foundations of the free world thinking he could make it bend to his menacing ways. But he badly miscalculated. \n\nHe thought he could roll into Ukraine and the world would roll over. Instead he met a wall of strength he never imagined. \n\nHe met the Ukrainian people. \n\nFrom President Zelenskyy to every Ukrainian, their fearlessness, their courage, their determination, inspires the world. \n\nGroups of citizens blocking tanks with their bodies. Everyone from students to retirees teachers turned soldiers defending their homeland.
+
+Content: And we won’t stop. \n\nWe have lost so much to COVID-19. Time with one another. And worst of all, so much loss of life. \n\nLet’s use this moment to reset. Let’s stop looking at COVID-19 as a partisan dividing line and see it for what it is: A God-awful disease.  \n\nLet’s stop seeing each other as enemies, and start seeing each other for who we really are: Fellow Americans.  \n\nWe can’t change how divided we’ve been. But we can change how we move forward—on COVID-19 and other issues we must face together. \n\nI recently visited the New York City Police Department days after the funerals of Officer Wilbert Mora and his partner, Officer Jason Rivera. \n\nThey were responding to a 9-1-1 call when a man shot and killed them with a stolen gun. \n\nOfficer Mora was 27 years old. \n\nOfficer Rivera was 22. \n\nBoth Dominican Americans who’d grown up on the same streets they later chose to patrol as police officers. \n\nI spoke with their families and told them that we are forever in debt for their sacrifice, and we will carry on their mission to restore the trust and safety every community deserves.
+
+Content: And a proud Ukrainian people, who have known 30 years  of independence, have repeatedly shown that they will not tolerate anyone who tries to take their country backwards.  \n\nTo all Americans, I will be honest with you, as I’ve always promised. A Russian dictator, invading a foreign country, has costs around the world. \n\nAnd I’m taking robust action to make sure the pain of our sanctions  is targeted at Russia’s economy. And I will use every tool at our disposal to protect American businesses and consumers. \n\nTonight, I can announce that the United States has worked with 30 other countries to release 60 Million barrels of oil from reserves around the world.  \n\nAmerica will lead that effort, releasing 30 Million barrels from our own Strategic Petroleum Reserve. And we stand ready to do more if necessary, unified with our allies.  \n\nThese steps will help blunt gas prices here at home. And I know the news about what’s happening can seem alarming. \n\nBut I want you to know that we are going to be okay.
+
+Content: More support for patients and families. \n\nTo get there, I call on Congress to fund ARPA-H, the Advanced Research Projects Agency for Health. \n\nIt’s based on DARPA—the Defense Department project that led to the Internet, GPS, and so much more.  \n\nARPA-H will have a singular purpose—to drive breakthroughs in cancer, Alzheimer’s, diabetes, and more. \n\nA unity agenda for the nation. \n\nWe can do this. \n\nMy fellow Americans—tonight , we have gathered in a sacred space—the citadel of our democracy. \n\nIn this Capitol, generation after generation, Americans have debated great questions amid great strife, and have done great things. \n\nWe have fought for freedom, expanded liberty, defeated totalitarianism and terror. \n\nAnd built the strongest, freest, and most prosperous nation the world has ever known. \n\nNow is the hour. \n\nOur moment of responsibility. \n\nOur test of resolve and conscience, of history itself. \n\nIt is in this moment that our character is formed. Our purpose is found. Our future is forged. \n\nWell I know this nation.
+=========
+FINAL ANSWER: The president did not mention Michael Jackson.
+
+QUESTION: {question}
+=========
+{summaries}
+=========
+FINAL ANSWER:"""
 
 
-#
-# Prompt template for the user request classification
-#
-#Classify the following QUESTION as Code Review, GitHub task, or Test case. The QUESTION should be classified as a GitHub task if it means executing a task on or related to a specific repository. The QUESTION should be classified as a Test case if it is not related to code and it is related to a provided use case. If it is related to code is always Code Review.
-#Provide only the classification.
-#Current conversation: 
-DC4SE_CLASSIFICATION_PROMPT_TEMPLATE = """
-Act as a Human Resource Manager. 
-Current conversation: 
-[{history}]
+COMBINE_PROMPT ="""Please read through all of the extracted parts of the curricula vitae carefully before answering the question in Italian. Make sure to only use information from the extracts to answer the question. Let's work through this step by step.
 
-QUESTION: {input}
-"""
-
-#
-# Prompt for the general questions 
-#
-DC4SE_GENERAL_CHAT_PROMPT_TEMPLATE = """
-The following is a friendly conversation between a human and an AI. The AI is an expert software engineer, but it can assist only with coding, GitHub tasks, and test cases. So, it can answer only about this topics. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know.
-Current conversation:
-[{history}]
-{input}
-"""
-
-
-DC4SE_CHAT_PROMPT = PromptTemplate(
-    input_variables=["history", "input"], template=DC4SE_GENERAL_CHAT_PROMPT_TEMPLATE
-)
-
-
-DC4SE_CLASSIFICATION_PROMPT = PromptTemplate(
-                template=DC4SE_CLASSIFICATION_PROMPT_TEMPLATE, input_variables=["history", "input"]
-            )
-
-
-
-#
-# For Task Automation
-#
-
-
-
-DC4SE_TASK_TEMPLATE = """
-Act as a GitHub API invoker. 
-Follow these rules:
-- provide the most appropriate FUNCTION ID and its PARAMETERS with the correct values to answer the QUESTION.
-- Your answer should be a well-formatted JSON, as in the example.
-- If there is more than one appropriate function, answer each function. The functions must have the same order as in the QUESTION.
-- If the QUESTION is not related to any function, answer "It is not related to the GitHub API".
-
-Current conversation: 
-[{history}]
-
-FUNCTIONS:
-{input}
-
-EXAMPLE: 
-{{"FUNCTIONS": [
-  {{"ID": "1",  "PARAMETERS": {{"owner": "name", "repo": "REP"}}}}
-]}}
-
-ANSWER: """
-
-DC4SE_TASK_PROMPT = PromptTemplate(
-    input_variables=["history", "input"], template=DC4SE_TASK_TEMPLATE
-)
-#
-# PROMPTS for coding
-#
-
-DC4SE_CODING_TEMPLATE = """
-Act as as software engineer. Check first if the question is related to the last code we were previously discussing about in the conversation. Answer the QUESTION at your best. Provide code as markdown.
-Current conversation:
-[{history}]
-
-QUESTION: {input}
-"""
-
-DC4SE_CODING_PROMPT = PromptTemplate(
-    input_variables=["history","input"], template=DC4SE_CODING_TEMPLATE
-)
-
-#
-# PROMPTS for UAT Test cases
-#
-DC4SE_TEST_CASES_TEMPLATE = """
-Act as a test engineer. 
-If I ask you to provide a test case for a given use case, produce a markdown table containing the following columns: Test case ID, Test case Description, Preconditions, Steps (markdown table containing an ordered list of tests steps with example input data. Each step is a new row), Expected result.
-Use the CONTEXT below if it helps. If the QUESTION does not provide a description of the use case scenario and there is no way to infer that from the following CONTEXT, concisely answer: I don't know the use case '{{USE CASE}}'.
-
-CONTEXT: {history}
-
-QUESTION: {input}
-
-ANSWER:"""
-
-DC4SE_TEST_CASES_PROMPT = PromptTemplate(
-    input_variables=["history","input"], template=DC4SE_TEST_CASES_TEMPLATE
-) #era context
+        QUESTION: {question}
+        
+        =========
+        {summaries}
+        =========
+        Answer in Italian:"""
