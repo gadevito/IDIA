@@ -25,20 +25,21 @@ Follow these steps to quickly set up and run the IDIA proof of concept:
 1. Install Python 3.11, if not already installed.
 2. Clone the repository: `git clone https://github.com/gadevito/IDIA.git`
 3. Navigate to the cloned repository directory: `cd /path/to/IDIA`
-4. Set the OPENAI_API_KEY variable in config.py:
+4. Create the data directory: `mkdir data`
+5. Set the OPENAI_API_KEY variable in config.py, in the idia directory:
 
    ```
    OPENAI_API_KEY ="<your_api_key>"
    ```
-4. Install poetry: `pip install poetry`
-5. Create a new virtual environment with Python 3.10: `poetry env use python3.11`
-6. Activate the virtual environment: `poetry shell`
-7. Install app dependencies: `poetry install`
-10. Run the API locally: `poetry run streamlit run ./idia/idiaApp.py`.
+6. Navigate again to the cloned repository directory: `cd /path/to/IDIA`
+7. Install poetry: `pip install poetry`
+8. Create a new virtual environment with Python 3.10: `poetry env use python3.11`
+9. Activate the virtual environment: `poetry shell`
+10. Install app dependencies: `poetry install`
+11. Run the API locally: `poetry run streamlit run ./idia/idiaApp.py`.
 
 ## About
 
 The proof of concept is a web application which exploits the Streamlit and LangChain Python frameworks, and FAISS 10 as vector database.
 It has been performed with the support of an Italian IT company. The company is an SME founded in 2002, and employs more than 50 people. It has a recruitment need and wants to evaluate the effectiveness of a new approach for extracting knowledge from resumes
 using Large Language Models and Vector Databases.
-
