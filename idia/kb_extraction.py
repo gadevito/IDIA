@@ -7,6 +7,7 @@ from langchain.chains.question_answering import load_qa_chain
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.prompts.prompt import PromptTemplate
 from langchain.llms import OpenAI
+from langchain.chat_models import ChatOpenAI
 from idia.config import *
 from idia.prompts import *
 import logging
@@ -104,7 +105,8 @@ class KnowledgeExtractor:
         for dirpath, dirnames, filenames in os.walk("./data"):
             for file in filenames:
                 try: 
-                    doc_chain = load_qa_chain(self.llm, chain_type="map_reduce", return_map_steps=True)
+                    co = ChatOpenAI(openai_api_key = OPENAI_API_KEY,model_name="gpt-3.5-turbo", temperature=0, verbose=True)
+                    doc_chain = load_qa_chain(co, chain_type="map_reduce", return_map_steps=True)
                     self.indexData(os.path.join(dirpath, file), self.ind, doc_chain)
                 except Exception as e: 
                     pass    
@@ -120,17 +122,22 @@ class KnowledgeExtractor:
             if i.is_file():
                 if self._is_visible(i.relative_to(p)):
                     try:
-                        doc_chain = load_qa_chain(self.llm, chain_type="map_reduce", return_map_steps=True)
+                        co = ChatOpenAI(openai_api_key = OPENAI_API_KEY,model_name="gpt-3.5-turbo", temperature=0, verbose=True)
+                        doc_chain = load_qa_chain(co, chain_type="map_reduce", return_map_steps=True)
                         sub_docs = self.indexData(str(i), self.ind, doc_chain)
                     except Exception as e:
                         logging.warning(e)
 
 
+    def addCurriculum(self,path):
+        co = ChatOpenAI(openai_api_key = OPENAI_API_KEY,model_name="gpt-3.5-turbo", temperature=0, verbose=True)
+        doc_chain = load_qa_chain(co, chain_type="map_reduce", return_map_steps=True)
+        sub_docs = self.indexData(path, self.ind, doc_chain)
     #
     # Load the data from the stream
     #
-    def __loadData(d):
-        loader = UnstructuredFileLoader(file)
+    def __loadData(self,d):
+        loader = UnstructuredFileLoader(d)
         return loader.load()
 
     #
@@ -217,7 +224,9 @@ class KnowledgeExtractor:
         nominativo = metadata["surname"]+" "+metadata["name"]
         dtn = metadata["dateOfBirth"]
         quality = metadata["quality"]
-
+        pages = metadata["pages"]
+        years = metadata["yearsOfExperience"]
+        
         for t in texts:
             header =f"Candidato: {nominativo} data di nascita: {dtn} qualità del curriculum: {quality} out of 10 numero di pagine del curriculum: {pages} anni di esperienza: {years}"
             cv = Document(page_content=header+"\n"+t.page_content, metadata=metadata)
