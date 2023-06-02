@@ -30,9 +30,9 @@ def unzip(name):
 def createBot():
     return KnowledgeExtractor()
 
-print("CREO IL BOT")
+
 chatBot = createBot()
-print("BOT CREATO")
+
 #Creating the chatbot interface
 st.title("Smart recruitment")
 st.subheader("Knowledge Extraction")
@@ -41,7 +41,7 @@ st.subheader("Knowledge Extraction")
 with st.form("my-form", clear_on_submit=True):
     upload_files = st.file_uploader("Choose a file", accept_multiple_files=True)
     if st.form_submit_button("Upload"):
-        print(len(upload_files))
+
         if len(upload_files) > 0:
             with st.spinner("Please wait..."):
                 for uploaded_file in upload_files:
