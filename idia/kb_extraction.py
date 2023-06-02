@@ -233,7 +233,7 @@ class KnowledgeExtractor:
             cv = Document(page_content=header+"\n"+t.page_content, metadata=metadata)
             self.texts.append(cv)
 
-        ind.upsert(texts)    
+        ind.upsert(self.texts)    
     
     #
     # MRExtractKnowledge algorithm implementation
