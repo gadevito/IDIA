@@ -130,6 +130,7 @@ class KnowledgeExtractor:
 
 
     def addCurriculum(self,path):
+        self.texts = []
         co = ChatOpenAI(openai_api_key = OPENAI_API_KEY,model_name="gpt-3.5-turbo", temperature=0, verbose=True)
         doc_chain = load_qa_chain(co, chain_type="map_reduce", return_map_steps=True)
         sub_docs = self.indexData(path, self.ind, doc_chain)
