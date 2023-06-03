@@ -34,7 +34,7 @@ Follow these steps to quickly set up and run the IDIA proof of concept:
    ```
 6. Navigate again to the cloned repository directory: `cd /path/to/IDIA`
 7. Install poetry: `pip install poetry`
-8. Create a new virtual environment with Python 3.10: `poetry env use python3.11`
+8. Create a new virtual environment with Python 3.11: `poetry env use python3.11`
 9. Activate the virtual environment: `poetry shell`
 10. Install app dependencies: `poetry install`
 11. Run the API locally: `poetry run streamlit run ./idia/idiaApp.py`.
