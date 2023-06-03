@@ -27,7 +27,7 @@ Follow these steps to quickly set up and run the IDIA proof of concept:
 2. Clone the repository: `git clone https://github.com/gadevito/IDIA.git`
 3. Navigate to the cloned repository directory: `cd /path/to/IDIA`
 4. Create the data directory: `mkdir data`
-5. Set the OPENAI_API_KEY variable in config.py, in the idia directory:
+5. Set the OPENAI_API_KEY variable in config.py, in the /path/to/IDIA/idia directory:
 
    ```
    OPENAI_API_KEY ="<your_api_key>"
