@@ -384,12 +384,12 @@ def main():
     bot = KnowledgeExtractor()
 
     start = time.time()
-    print(bot.answer("Gabriele", "Fammi un sommario del curriculum di Schiavottiello"))
+    print(bot.answer("Gabriele", "Fammi un sommario del curriculum di Tommaso Cacace"))
     end = time.time()
     print("TIME: ", end-start)
 
     start = time.time()
-    print(bot.answer("Gabriele", "Che domanda faresti in un ipotetico colloquio a Schiavottiello?"))
+    print(bot.answer("Gabriele", "Che domanda faresti in un ipotetico colloquio a Tommaso Cacace?"))
 
     end = time.time()
     print("TIME: ", end-start)
