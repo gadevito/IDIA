@@ -1,4 +1,5 @@
 
+
 from langchain.vectorstores import FAISS
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.document_loaders import UnstructuredFileLoader
@@ -126,7 +127,7 @@ class KnowledgeExtractor:
                         doc_chain = load_qa_chain(co, chain_type="map_reduce", return_map_steps=True)
                         sub_docs = self.indexData(str(i), self.ind, doc_chain)
                     except Exception as e:
-                        logging.warning(e)
+                        print(e)
 
 
     def addCurriculum(self,path):
@@ -169,7 +170,7 @@ class KnowledgeExtractor:
         min = 10000
         max = 0
         for step in res["intermediate_steps"]:
-            print(step)
+            #logging.debug(str(step))
             try:
                 j = json.loads(step)
 
@@ -180,16 +181,16 @@ class KnowledgeExtractor:
                     metadata["quality"] = j["quality"]
                     start = False
                 for exp in j["experiences"]:
-                    print(exp["start"], " ", exp["end"], exp["company"])
+                    #logging.debug(exp["start"] + " " + exp["end"] + " " + exp["company"])
                     try:
                         dst = exp["start"]
-                        print(dst)
+                        #logging.debug(dst)
                         if( len(dst) >4):
                             s = int(dst[-4:])
                         else:    
                             s = int(dst)
                         dend = exp["end"]
-                        print(dend)
+                        #logging.debug(dend)
                         if(dend =="present"):
                             dend = "2023"
                         if(len(dend)>4):
@@ -200,7 +201,7 @@ class KnowledgeExtractor:
                             min = s
                         if e > max:
                             max = e        
-                        print("attuale: ",min, " ", max, "start: ",s, " end: ",e)
+                        #logging.debug("attuale: " +str(min)+ " "+ str(max)+ " start: " +str(s) + " end: "+str(e))
                     except Exception as x:
                         print(x)
             except Exception as ej:
@@ -275,7 +276,7 @@ class KnowledgeExtractor:
                 dim = dim + len(result)
                 docs.append(result)
         
-        print(dim, " LEN ", numDocs)
+        #logging.debug(str(dim) + " LEN " + str(numDocs))
         if dim > MAX_CONTEXT_SIZE:
             docs = self.__SummarizeKnowledge(sPrompt, docs, q, LLMs)
         
@@ -298,7 +299,7 @@ class KnowledgeExtractor:
         i = 1
         first = 1
         totalDim = 0
-        print("I=",i," NUMDOCS ",numDocs)
+        #logging.debug("I=" +str(i) +" NUMDOCS "+str(numDocs))
         while( i < numDocs):
             if (dim + len(d[i]) > MAX_CONTEXT_SIZE) or i+1>=numDocs:
                 prompt = "content: "
@@ -306,7 +307,7 @@ class KnowledgeExtractor:
                 for j in range(first,i-1):
                     prompt = "Content: " + d[j]+"\n"
                 prompt = sPrompt.format(summaries=prompt, question=q)
-                print(first, " i = ", i, " DIM ", dim, "NUM ", numDocs)
+                #logging.debug(str(first) + " i = " + str(i) + " DIM " + str(dim) + " NUM "+ str(numDocs))
                 future = executor.submit(self.select(LLMs).predict, prompt)
                 result = future.result()
                 docs.append(result)
@@ -321,7 +322,7 @@ class KnowledgeExtractor:
                 i = i+1
 
 
-        print("TOTAL DIM ", totalDim, " ", MAX_CONTEXT_SIZE, "DOC ", len(docs))
+        #logging.debug("TOTAL DIM "+ str(totalDim) + " " + str(MAX_CONTEXT_SIZE) + " DOC " + str(len(docs)))
         if totalDim > MAX_CONTEXT_SIZE:
             docs = self.__SummarizeKnowledge(sPrompt, docs, q, LLMs)
         
@@ -371,25 +372,25 @@ class KnowledgeExtractor:
 
             cPrompt = COMBINE_PROMPT
             res = self.MRExtractKnowledge(qPrompt,sPrompt,cPrompt,user_input,self.ind, self.LLMs)
-            logging.debug(f"RESULT: {res}")
+            #logging.debug(f"RESULT: {res}")
         except Exception as e:
-            print(e)
+            #logging.debug(e)
             raise e
 
         end = time.time()
-        logging.debug("TEMPO: ", end-start)
+        #logging.debug("TEMPO: ", end-start)
         return {"markdown": markdown, "response": res}
 
 def main():
     bot = KnowledgeExtractor()
 
     start = time.time()
-    print(bot.answer("Gabriele", "Fammi un sommario del curriculum di Tommaso Cacace"))
+    print(bot.answer("Gabriele", "Fammi un sommario del curriculum di Schiavottiello"))
     end = time.time()
     print("TIME: ", end-start)
 
     start = time.time()
-    print(bot.answer("Gabriele", "Che domanda faresti in un ipotetico colloquio a Tommaso Cacace?"))
+    print(bot.answer("Gabriele", "Che domanda faresti in un ipotetico colloquio a Schiavottiello?"))
 
     end = time.time()
     print("TIME: ", end-start)
